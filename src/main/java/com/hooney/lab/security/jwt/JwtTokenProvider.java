@@ -167,9 +167,11 @@ public class JwtTokenProvider {
 
             return true;
 
-        } catch (SecurityException | MalformedJwtException e) {
+        } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
             // 서명이 올바르지 않거나 JWT 구조가 잘못된 경우
             // → 토큰이 위변조되었을 가능성 높음
+            // ⚠️ 주의: java.lang.SecurityException이 아닌 io.jsonwebtoken.security.SecurityException을 catch해야 함
+            //    jjwt의 SignatureException은 io.jsonwebtoken.security.SecurityException을 상속
             log.error("🚨 유효하지 않은 JWT 서명입니다: {}", e.getMessage());
 
         } catch (ExpiredJwtException e) {

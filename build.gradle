@@ -36,6 +36,8 @@ description = 'Enterprise-grade Security, JWT, and Hybrid Encryption Core'
 // ☕ Java 버전 설정
 // Java 21 (LTS): Virtual Threads, Pattern Matching 등
 // 최신 기능을 활용하면서도 장기 지원(Long-Term Support)을 받을 수 있음
+// 로컬에 Java 17이 설치된 경우, JAVA_HOME을 21로 변경하거나
+// IntelliJ → Project Structure → SDK에서 21을 지정하세요.
 // ─────────────────────────────────────────────────────────
 java {
     toolchain {

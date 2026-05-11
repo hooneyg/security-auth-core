@@ -1,12 +1,11 @@
 package com.hooney.lab.security.jwt;
 
+import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Encoders;
-import io.jsonwebtoken.security.Keys;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 
 import javax.crypto.SecretKey;
-import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 
@@ -53,7 +52,8 @@ class JwtTokenProviderTest {
 
         // 테스트용 HMAC-SHA512 시크릿 키 생성 (512비트 = 64바이트)
         // 실제 운영에서는 application.yml에서 읽어오지만, 테스트에서는 직접 생성
-        SecretKey testKey = Keys.secretKeyFor(io.jsonwebtoken.SignatureAlgorithm.HS512);
+        // Jwts.SIG.HS512.key().build(): jjwt 0.12.x 최신 API (deprecated된 Keys.secretKeyFor 대체)
+        SecretKey testKey = Jwts.SIG.HS512.key().build();
         String base64Secret = Encoders.BASE64.encode(testKey.getEncoded());
         jwtProperties.setSecret(base64Secret);
 
@@ -130,8 +130,14 @@ class JwtTokenProviderTest {
         // Given: 유효한 토큰 생성
         String token = jwtTokenProvider.createAccessToken(TEST_USER_ID, TEST_ROLES);
 
-        // When: 토큰 마지막 글자를 변경하여 서명 위변조
-        String tamperedToken = token.substring(0, token.length() - 1) + "X";
+        // When: JWT의 Payload(중간 파트)를 직접 변조
+        // JWT 구조: Header.Payload.Signature
+        // Payload를 변경하면 서명과 불일치 → 반드시 SignatureException 발생
+        // ⚠️ 주의: 마지막 글자만 바꾸면 Base64url 패딩 비트만 변경되어
+        //    디코딩 결과가 동일할 수 있으므로, Payload를 변조하는 것이 확실함
+        String[] parts = token.split("\\.");
+        String tamperedPayload = parts[1].substring(0, parts[1].length() - 4) + "XXXX";
+        String tamperedToken = parts[0] + "." + tamperedPayload + "." + parts[2];
 
         // Then: 위변조된 토큰은 검증 실패
         assertThat(jwtTokenProvider.validateToken(tamperedToken)).isFalse();
