@@ -1,0 +1,158 @@
+/*
+ * ╔══════════════════════════════════════════════════════════════════╗
+ * ║              🔐 Security Auth Core - Build Script               ║
+ * ║                                                                  ║
+ * ║  이 파일은 security-auth-core 프로젝트의 Gradle 빌드 설정입니다.    ║
+ * ║  Spring Boot 3.4.x + Java 21 LTS 기반으로 구성되어 있습니다.       ║
+ * ║                                                                  ║
+ * ║  📌 주요 의존성 설명:                                             ║
+ * ║  - spring-boot-starter-security : Spring Security 6.x 프레임워크  ║
+ * ║  - spring-boot-starter-oauth2-client : OAuth2 소셜 로그인 지원    ║
+ * ║  - jjwt : JWT(JSON Web Token) 생성, 파싱, 검증 라이브러리          ║
+ * ║  - spring-boot-starter-data-redis : Redis 연동 (토큰 저장소)      ║
+ * ║  - bouncy-castle : 고급 암호화 알고리즘 (RSA, AES-256 등) 지원    ║
+ * ╚══════════════════════════════════════════════════════════════════╝
+ */
+
+plugins {
+    // Spring Boot 플러그인: 실행 가능한 JAR 생성 및 의존성 관리 자동화
+    id 'org.springframework.boot' version '3.4.5'
+
+    // Spring 의존성 관리 플러그인: BOM(Bill of Materials) 기반으로 호환 가능한 라이브러리 버전을 자동으로 맞춰줌
+    id 'io.spring.dependency-management' version '1.1.7'
+
+    // Java 플러그인: Java 소스 컴파일 및 테스트 실행 지원
+    id 'java'
+}
+
+// ─────────────────────────────────────────────────────────
+// 📦 프로젝트 메타데이터
+// ─────────────────────────────────────────────────────────
+group = 'com.hooney.lab'          // 그룹 ID: Maven 중앙 저장소의 네임스페이스 역할
+version = '1.0.0-SNAPSHOT'       // 버전: SNAPSHOT은 아직 릴리즈 전 개발 중인 버전을 의미
+description = 'Enterprise-grade Security, JWT, and Hybrid Encryption Core'
+
+// ─────────────────────────────────────────────────────────
+// ☕ Java 버전 설정
+// Java 21 (LTS): Virtual Threads, Pattern Matching 등
+// 최신 기능을 활용하면서도 장기 지원(Long-Term Support)을 받을 수 있음
+// ─────────────────────────────────────────────────────────
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+// ─────────────────────────────────────────────────────────
+// 📋 컴파일러 옵션
+// -parameters: 메서드 파라미터 이름 정보를 바이트코드에 포함시켜
+// Spring의 @RequestParam, @PathVariable 등이 파라미터 이름을 자동 인식하게 함
+// ─────────────────────────────────────────────────────────
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs.add('-parameters')
+    options.encoding = 'UTF-8'
+}
+
+// ─────────────────────────────────────────────────────────
+// 🏗️ 저장소 설정
+// mavenCentral(): 전 세계 표준 Maven 중앙 저장소에서 의존성을 다운로드
+// ─────────────────────────────────────────────────────────
+repositories {
+    mavenCentral()
+}
+
+// ─────────────────────────────────────────────────────────
+// 📚 의존성 정의
+// 각 의존성의 역할과 프로젝트에서의 사용 목적을 상세히 기술합니다.
+// ─────────────────────────────────────────────────────────
+dependencies {
+
+    // ═══════════════════════════════════════════════════════
+    // 🌐 Spring Boot 핵심 스타터
+    // ═══════════════════════════════════════════════════════
+
+    // Spring Boot Web: REST API 엔드포인트 구성, 내장 톰캣 서버 포함
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // Spring Security: 인증(Authentication) 및 인가(Authorization) 프레임워크
+    // - 필터 체인(Filter Chain) 기반의 요청 처리
+    // - CSRF, CORS, 세션 관리 등 보안 기능 내장
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    // OAuth2 Client: Google, Kakao, Naver 등 소셜 로그인 연동
+    // - Authorization Code Grant 플로우 지원
+    // - OIDC(OpenID Connect) 프로토콜 자동 처리
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
+    // Spring Data Redis: Redis 인메모리 데이터 저장소 연동
+    // - Refresh Token 저장 및 블랙리스트 관리에 사용
+    // - Lettuce 클라이언트 기반 (비동기 논블로킹 I/O)
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    // Validation: @Valid, @NotBlank 등 Bean Validation 어노테이션 지원
+    // - 사용자 입력 데이터의 서버 사이드 유효성 검증
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // ═══════════════════════════════════════════════════════
+    // 🔑 JWT (JSON Web Token) 라이브러리
+    // jjwt 0.12.x 버전: 최신 API 기반
+    // - jjwt-api: JWT 생성/파싱을 위한 인터페이스 정의
+    // - jjwt-impl: 실제 JWT 처리 로직 구현 (런타임에만 필요)
+    // - jjwt-jackson: JWT 페이로드의 JSON 직렬화/역직렬화 처리
+    // ═══════════════════════════════════════════════════════
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
+
+    // ═══════════════════════════════════════════════════════
+    // 🔐 Bouncy Castle - 고급 암호화 라이브러리
+    // - RSA 키 페어 생성 (2048/4096 bit)
+    // - AES-256-GCM 대칭키 암호화
+    // - Java 표준 JCE(Java Cryptography Extension)보다 더 다양한 알고리즘 지원
+    // ═══════════════════════════════════════════════════════
+    implementation 'org.bouncycastle:bcprov-jdk18on:1.80'
+
+    // ═══════════════════════════════════════════════════════
+    // 🛠️ 유틸리티
+    // ═══════════════════════════════════════════════════════
+
+    // Lombok: 반복적인 보일러플레이트 코드(Getter, Setter, Builder 등) 자동 생성
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // Spring Boot Configuration Processor: @ConfigurationProperties 메타데이터 생성
+    // - IDE 자동완성 및 application.yml 프로퍼티 힌트 지원
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
+    // ═══════════════════════════════════════════════════════
+    // 🧪 테스트 의존성
+    // ═══════════════════════════════════════════════════════
+
+    // Spring Boot Test: JUnit 5 + Mockito + AssertJ 통합 테스트 스타터
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    // Spring Security Test: @WithMockUser 등 보안 테스트 유틸리티
+    testImplementation 'org.springframework.security:spring-security-test'
+
+    // Embedded Redis: 테스트 시 실제 Redis 서버 없이 인메모리 Redis 실행
+    // - @Test에서 Redis 의존 로직을 독립적으로 검증 가능
+    testImplementation 'com.github.codemonstur:embedded-redis:1.4.3'
+
+    // Lombok 테스트 환경 지원
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+}
+
+// ─────────────────────────────────────────────────────────
+// 🧪 테스트 설정
+// JUnit Platform 사용: JUnit 5 기반 테스트 실행
+// ─────────────────────────────────────────────────────────
+tasks.named('test') {
+    useJUnitPlatform()
+
+    // 테스트 실행 시 콘솔에 결과를 실시간으로 출력
+    testLogging {
+        events 'PASSED', 'FAILED', 'SKIPPED'
+        showStandardStreams = true
+    }
+}

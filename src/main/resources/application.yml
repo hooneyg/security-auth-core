@@ -1,0 +1,178 @@
+###############################################################################
+# 🔐 Security Auth Core - Application Configuration
+#
+# [개요]
+# Spring Boot 애플리케이션의 전체 설정을 관리하는 핵심 파일입니다.
+# 설정 항목은 크게 다음과 같이 분류됩니다:
+#   1. 서버 설정 (포트, 컨텍스트 경로)
+#   2. Spring Security & OAuth2 설정
+#   3. JWT 토큰 설정
+#   4. Redis 연결 설정
+#   5. 암호화 설정
+#
+# [주의사항]
+# - [USER_XXX] 형태의 플레이스홀더는 반드시 실제 값으로 교체해야 합니다.
+# - 민감 정보는 환경 변수 또는 Vault를 통해 주입하는 것을 권장합니다.
+# - 프로덕션 배포 시에는 application-prod.yml을 별도로 관리하세요.
+###############################################################################
+
+spring:
+  application:
+    # 애플리케이션 이름: 로그, 모니터링 등에서 서비스를 식별하는 데 사용됨
+    name: security-auth-core
+
+  # ─────────────────────────────────────────────────────────
+  # 🔑 OAuth2 소셜 로그인 설정
+  # 각 Provider(Google, Kakao, Naver 등)의 OAuth2 자격 증명을 등록합니다.
+  # Authorization Code Grant 방식을 사용하며,
+  # 사용자가 로그인하면 Provider가 Authorization Code를 발급하고,
+  # 서버가 이를 Access Token으로 교환합니다.
+  # ─────────────────────────────────────────────────────────
+  security:
+    oauth2:
+      client:
+        registration:
+          # ──── Google OAuth2 ────
+          # 1. https://console.cloud.google.com/apis/credentials 에서 앱 등록
+          # 2. OAuth 2.0 클라이언트 ID → 웹 애플리케이션 선택
+          # 3. 승인된 리디렉션 URI에 아래 redirect-uri 등록
+          google:
+            client-id: "[USER_GOOGLE_CLIENT_ID]"
+            client-secret: "[USER_GOOGLE_CLIENT_SECRET]"
+            scope:
+              - email    # 사용자 이메일 주소 조회
+              - profile  # 사용자 이름, 프로필 이미지 조회
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+
+          # ──── Kakao OAuth2 ────
+          # 1. https://developers.kakao.com 에서 앱 등록
+          # 2. 카카오 로그인 → 활성화 설정 ON
+          # 3. Redirect URI에 아래 redirect-uri 등록
+          kakao:
+            client-id: "[USER_KAKAO_CLIENT_ID]"
+            client-secret: "[USER_KAKAO_CLIENT_SECRET]"
+            client-authentication-method: client_secret_post
+            authorization-grant-type: authorization_code
+            scope:
+              - profile_nickname
+              - account_email
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            client-name: Kakao
+
+        provider:
+          # Kakao의 경우 Spring Boot가 기본 제공하지 않으므로
+          # OAuth2 Provider 엔드포인트를 수동으로 지정해야 합니다.
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
+
+  # ─────────────────────────────────────────────────────────
+  # 📦 Redis 연결 설정
+  # Redis는 다음 용도로 사용됩니다:
+  #   1. Refresh Token 저장: 사용자별 RTR(Refresh Token Rotation) 관리
+  #   2. Token Blacklist: 로그아웃된 Access Token 무효화
+  #   3. Rate Limiting: 인증 시도 횟수 제한 (Brute Force 방어)
+  #
+  # [연결 방식]
+  # - Standalone: 단일 Redis 노드 연결 (개발/소규모 서비스)
+  # - Sentinel: Redis Sentinel 기반 HA(고가용성) 구성 (운영 환경 권장)
+  # - Cluster: Redis Cluster 기반 수평 확장 (대규모 서비스)
+  # ─────────────────────────────────────────────────────────
+  data:
+    redis:
+      host: "[USER_REDIS_HOST]"       # Redis 서버 주소 (예: localhost 또는 redis.hooneyz.com)
+      port: 6379                       # Redis 기본 포트 (TLS 사용 시 6380)
+      password: "[USER_REDIS_PASSWORD]" # Redis 인증 비밀번호 (AUTH 명령에 사용)
+      timeout: 3000ms                  # 연결 타임아웃 (3초): 네트워크 지연 시 빠른 실패 유도
+      lettuce:
+        pool:
+          max-active: 10               # 최대 활성 연결 수: 동시에 Redis를 사용하는 최대 커넥션
+          max-idle: 5                  # 최대 유휴 연결 수: 사용하지 않아도 유지하는 커넥션
+          min-idle: 1                  # 최소 유휴 연결 수: 최소한 이만큼은 미리 생성해둠
+          max-wait: 2000ms             # 커넥션 풀 대기 시간: 모든 커넥션이 사용 중일 때 최대 대기
+
+# ─────────────────────────────────────────────────────────
+# 🗝️ JWT (JSON Web Token) 설정
+# 사용자 인증 후 발급되는 토큰의 보안 속성을 정의합니다.
+# ─────────────────────────────────────────────────────────
+jwt:
+  secret: "[USER_JWT_SECRET_KEY_MIN_64_CHARS]"
+  # ↑ JWT 서명에 사용되는 비밀키
+  # - HMAC-SHA512 알고리즘 사용 시 최소 64자(512비트) 이상 권장
+  # - 예시: openssl rand -base64 64 명령으로 안전한 키 생성 가능
+  # - ⚠️ 절대 소스코드에 하드코딩하지 말 것! 환경 변수 또는 Vault 사용 권장
+
+  access-token:
+    expiration: 900000
+    # ↑ Access Token 만료 시간 (밀리초)
+    # - 900000ms = 15분
+    # - 짧을수록 보안은 높아지지만, 사용자가 자주 재인증해야 하는 불편함 발생
+    # - 일반적으로 15분~1시간 사이로 설정
+
+  refresh-token:
+    expiration: 604800000
+    # ↑ Refresh Token 만료 시간 (밀리초)
+    # - 604800000ms = 7일
+    # - 이 기간 내에 Refresh Token을 사용하여 새로운 Access Token 발급 가능
+    # - 만료 후에는 사용자가 다시 로그인해야 함
+
+  rtr:
+    enabled: true
+    # ↑ RTR (Refresh Token Rotation) 활성화 여부
+    # - true: Refresh Token 사용 시 매번 새로운 Refresh Token도 함께 발급
+    # - 이전 Refresh Token은 즉시 무효화되어 탈취된 토큰 사용 불가
+    # - false: 하나의 Refresh Token을 만료까지 계속 사용 (보안 취약)
+
+# ─────────────────────────────────────────────────────────
+# 🔐 하이브리드 암호화(Hybrid Encryption) 설정
+# RSA(비대칭키) + AES-256(대칭키) 조합
+#
+# [동작 원리]
+# 1. AES-256 대칭키를 무작위로 생성 → 이 키로 실제 데이터 암호화 (빠름)
+# 2. RSA 공개키로 AES 대칭키를 암호화 → 안전하게 키를 전달
+# 3. 수신측은 RSA 개인키로 AES 키를 복호화 → AES 키로 데이터 복호화
+#
+# [장점] RSA의 보안성 + AES의 속도를 동시에 확보
+# ─────────────────────────────────────────────────────────
+encryption:
+  rsa:
+    key-size: 2048
+    # ↑ RSA 키 크기 (비트)
+    # - 2048: 현재 업계 표준 (2030년까지 안전한 것으로 평가)
+    # - 4096: 더 강력한 보안이 필요한 경우 (성능 약 4~8배 느림)
+    public-key-path: "[USER_RSA_PUBLIC_KEY_PATH]"
+    # ↑ RSA 공개키 파일 경로 (예: classpath:keys/public.pem 또는 /opt/keys/public.pem)
+    private-key-path: "[USER_RSA_PRIVATE_KEY_PATH]"
+    # ↑ RSA 개인키 파일 경로 (절대 외부 노출 금지!)
+
+  aes:
+    key-size: 256
+    # ↑ AES 키 크기 (비트)
+    # - 128: 기본 보안 수준
+    # - 192: 중간 보안 수준
+    # - 256: 최고 보안 수준 (금융, 의료, 군사 등에서 사용)
+    algorithm: AES/GCM/NoPadding
+    # ↑ AES 알고리즘 모드
+    # - GCM (Galois/Counter Mode): 암호화 + 무결성 검증을 동시에 수행
+    # - NoPadding: GCM 모드에서는 별도의 패딩이 필요 없음
+    # - 참고: CBC 모드 대비 GCM이 Padding Oracle Attack에 안전
+
+# ─────────────────────────────────────────────────────────
+# 🖥️ 서버 설정
+# ─────────────────────────────────────────────────────────
+server:
+  port: 8080
+  # ↑ 애플리케이션이 수신 대기하는 HTTP 포트 번호
+
+# ─────────────────────────────────────────────────────────
+# 📝 로깅 설정
+# 개발 시에는 DEBUG 레벨로 설정하여 Spring Security 내부 동작을 추적
+# 운영 환경에서는 WARN 이상으로 변경하여 로그 볼륨 감소
+# ─────────────────────────────────────────────────────────
+logging:
+  level:
+    root: INFO
+    com.hooney.lab: DEBUG
+    org.springframework.security: DEBUG
