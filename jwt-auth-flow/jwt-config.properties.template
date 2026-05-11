@@ -1,0 +1,2 @@
+jwt.secret=[YOUR_JWT_SECRET_KEY]
+jwt.expiration=[YOUR_EXPIRATION_TIME_MS]
