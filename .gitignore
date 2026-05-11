@@ -1,22 +1,27 @@
-.gradle
-build/
-!gradle/wrapper/gradle-wrapper.jar
-!**/src/main/resources/gradle-wrapper.properties
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║         🚫 .gitignore (Project Exclusion Policy)                ║
+# ║                                                                  ║
+# ║  [제외 원칙]                                                     ║
+# ║  1. 빌드 결과물: /build, /.gradle (재생성 가능하므로 제외)          ║
+# ║  2. 개인 설정: /.idea, .DS_Store (협업 시 충돌 방지)               ║
+# ║  3. 민감 정보: *.log (보안 및 로그 관리 정책상 제외)               ║
+# ╚══════════════════════════════════════════════════════════════════╝
 
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
-out/
+### 🐘 Gradle 빌드 관련 파일 ###
+.gradle/                        # Gradle 작업 캐시 (용량 차지만 하므로 제외)
+build/                          # 빌드 결과물 (JAR, Class 파일 - 항상 재생성 가능)
+!gradle/wrapper/gradle-wrapper.jar # 래퍼 실행 파일은 저장소에 포함해야 함
+!**/src/main/resources/gradle-wrapper.properties # 래퍼 설정 정보도 포함
 
-### Eclipse ###
-.settings/
-.classpath
-.project
-bin/
+### 💻 IntelliJ IDEA (JetBrains) 설정 ###
+.idea/                          # 프로젝트별 로컬 설정 (개발자마다 다르므로 제외)
+*.iws                           # 워크스페이스 관련 임시 파일
+*.iml                           # 모듈 파일 (공용 설정이 아니면 제외 권장)
+*.ipr                           # 프로젝트 설정 파일
+out/                            # 컴파일 출력 디렉토리
 
-### Others ###
-*.log
-*.swp
-.DS_Store
+### ⚡ 시스템 임시 파일 및 기타 ###
+*.log                           # 애플리케이션 실행 로그 (보안상 저장소 배제)
+*.swp                           # Vi/Vim 편집기 임시 파일
+.DS_Store                       # macOS 시스템 메타데이터 파일
+Thumbs.db                       # Windows 썸네일 캐시 파일

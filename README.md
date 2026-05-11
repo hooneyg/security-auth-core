@@ -181,7 +181,18 @@ security-auth-core/
 - Gradle 8.x
 - Redis Server (Token Store용)
 
-### 1. Clone & Build
+### 🐳 Run with Docker (Recommended)
+본 프로젝트는 **Docker**를 통해 환경 설정 없이 즉시 실행 가능합니다.
+
+```bash
+# 1. 이미지 빌드
+docker build -t security-auth-core:latest .
+
+# 2. 컨테이너 실행 (Redis 연결 설정 필요)
+docker run -p 8080:8080 security-auth-core:latest
+```
+
+### ☕ Local Build & Run
 ```bash
 git clone https://github.com/hooneyg/security-auth-core.git
 cd security-auth-core
