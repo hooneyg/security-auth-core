@@ -1,2 +1,12 @@
+# [Enterprise JWT Security Configuration]
+# 사용자 인증 및 보안을 위한 핵심 토큰 설정 파일입니다.
+
+# JWT 서명에 사용되는 비밀키 (절대 외부 유출 금지)
 jwt.secret=[YOUR_JWT_SECRET_KEY]
-jwt.expiration=[YOUR_EXPIRATION_TIME_MS]
+
+# 액세스 토큰 만료 시간 (짧게 설정할수록 보안성이 높아짐, 보통 30분~1시간 권장)
+jwt.expiration=3600000 
+
+# 리프레시 토큰 로테이션(RTR) 정책 사용 여부
+# 토큰 탈취 시 공격자가 영구적으로 권한을 갖는 것을 방지합니다.
+jwt.rtr.enabled=true
