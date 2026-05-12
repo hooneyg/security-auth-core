@@ -234,6 +234,7 @@ docker-compose logs -f security-auth-core
 - [Architecture Overview](./docs/architecture.md)
 - [ADR-001: JWT 서명 알고리즘 선택 (HS256 vs HS512)](./docs/decisions/ADR-001-jwt-signature.md)
 - [ADR-002: 하이브리드 암호화 전략 선택](./docs/decisions/ADR-002-hybrid-encryption.md)
+- [Troubleshooting & Debugging](./docs/troubleshooting.md)
 
 ## 📄 License
 This project is licensed under the [MIT License](./LICENSE).
