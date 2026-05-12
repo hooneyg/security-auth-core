@@ -148,7 +148,7 @@ security-auth-core/
 ### ✅ 증거 2: RSA-2048 + AES-256-GCM 하이브리드 암호화 적용
 - 대칭키(AES)의 빠른 속도와 비대칭키(RSA)의 키 교환 안전성을 결합.
 - 매 요청마다 새로운 AES 키(IV 랜덤)를 생성하여 완벽한 전방향 안전성(PFS) 보장.
-- 👉 [샘플 암호화 요청/응답 보기](./examples/encrypt-request.json)
+- 👉 **[실제 중간자 공격(MitM) 방어 시나리오 및 실행 스크립트 보기](./docs/api-scenarios.md)**
 
 ### 3. 🛡️ Spring Security 6.x Integration
 | Feature | Description |
