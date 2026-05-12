@@ -1,0 +1,8 @@
+{
+  "status": 200,
+  "message": "Encrypted successfully",
+  "data": {
+    "encryptedData": "U2FsdGVkX1+vXwO3zZ8Q0mZ...[AES_ENCRYPTED_DATA]",
+    "encryptedAesKey": "NzA1ZjQ1MjEtNGU...[RSA_ENCRYPTED_AES_KEY]"
+  }
+}

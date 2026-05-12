@@ -53,6 +53,13 @@ public class SecurityConfig {
 
         http
             // ─────────────────────────────────────────────────
+            // 0. CORS (Cross-Origin Resource Sharing) 설정
+            // 프론트엔드(React, Next.js 등)와 안전하게 통신하기 위해
+            // 전역 CORS 정책을 설정합니다. (corsConfigurationSource Bean 사용)
+            // ─────────────────────────────────────────────────
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
+            // ─────────────────────────────────────────────────
             // 1. CSRF(Cross-Site Request Forgery) 비활성화
             // REST API는 토큰 기반 인증을 사용하며, 브라우저의 쿠키/세션에
             // 의존하지 않으므로 CSRF 공격에 노출되지 않습니다.
@@ -131,5 +138,45 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    /**
+     * 🌐 CORS(Cross-Origin Resource Sharing) 전역 설정
+     *
+     * 프론트엔드 애플리케이션(예: React, Next.js)이 다른 도메인이나 포트에서
+     * 이 API 서버로 자원을 요청할 수 있도록 허용합니다.
+     *
+     * [보안 고려사항]
+     * - 허용할 Origin(출처), HTTP 메서드, 헤더를 명시적으로 지정하여
+     *   알 수 없는 출처의 비정상적인 접근을 차단합니다.
+     * - 인증 토큰(Authorization Header)을 클라이언트가 읽을 수 있도록
+     *   ExposedHeaders 설정이 필수적입니다.
+     */
+    @Bean
+    public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
+        org.springframework.web.cors.CorsConfiguration configuration = new org.springframework.web.cors.CorsConfiguration();
+        
+        // 프론트엔드 도메인 허용 (개발 및 프로덕션 환경에 맞게 수정 필요)
+        configuration.setAllowedOrigins(java.util.List.of("http://localhost:3000", "https://your-frontend-domain.com"));
+        
+        // 허용할 HTTP 메서드 명시
+        configuration.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        
+        // 클라이언트가 보낼 수 있는 헤더 (Authorization, Content-Type 등)
+        configuration.setAllowedHeaders(java.util.List.of("*"));
+        
+        // 클라이언트(브라우저)에서 접근할 수 있는 응답 헤더 노출 (보안상 기본적으로 숨겨져 있음)
+        configuration.setExposedHeaders(java.util.List.of("Authorization", "Content-Type"));
+        
+        // 자격 증명(쿠키, 인증 헤더 등) 포함 허용
+        configuration.setAllowCredentials(true);
+        
+        // 프리플라이트(Preflight) 요청 캐싱 시간 설정 (1시간)
+        configuration.setMaxAge(3600L);
+
+        org.springframework.web.cors.UrlBasedCorsConfigurationSource source = new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
+        // 모든 API 경로에 대해 위에서 정의한 CORS 정책을 적용
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }

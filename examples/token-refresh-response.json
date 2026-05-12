@@ -1,0 +1,10 @@
+{
+  "status": 200,
+  "message": "Token refreshed successfully",
+  "data": {
+    "accessToken": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pb...[NEW_ACCESS_TOKEN]",
+    "refreshToken": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pb...[NEW_REFRESH_TOKEN]",
+    "tokenType": "Bearer",
+    "expiresIn": 21600
+  }
+}

@@ -3,7 +3,7 @@
  * ║              🔐 Security Auth Core - Build Script               ║
  * ║                                                                  ║
  * ║  이 파일은 security-auth-core 프로젝트의 Gradle 빌드 설정입니다.    ║
- * ║  Spring Boot 3.4.x + Java 21 LTS 기반으로 구성되어 있습니다.       ║
+ * ║  Spring Boot 4.0.6 + Java 21 LTS 기반으로 구성되어 있습니다.       ║
  * ║                                                                  ║
  * ║  📌 주요 의존성 설명:                                             ║
  * ║  - spring-boot-starter-security : Spring Security 6.x 프레임워크  ║
@@ -16,7 +16,7 @@
 
 plugins {
     // Spring Boot 플러그인: 실행 가능한 JAR 생성 및 의존성 관리 자동화
-    id 'org.springframework.boot' version '3.4.5'
+    id 'org.springframework.boot' version '4.0.6'
 
     // Spring 의존성 관리 플러그인: BOM(Bill of Materials) 기반으로 호환 가능한 라이브러리 버전을 자동으로 맞춰줌
     id 'io.spring.dependency-management' version '1.1.7'

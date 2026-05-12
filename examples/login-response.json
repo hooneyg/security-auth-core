@@ -1,0 +1,10 @@
+{
+  "status": 200,
+  "message": "Login successful",
+  "data": {
+    "accessToken": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBob29uZXl6LmNvbSIsImF1dGhvcml0aWVzIjpbIlJPTEVfQURNSU4iXSwiZXhwIjoxNzE1NjI0NTg0LCJpYXQiOjE3MTU2MDI5ODR9...",
+    "refreshToken": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBob29uZXl6LmNvbSIsImV4cCI6MTcxNjIwNzc4NCwiaWF0IjoxNzE1NjAyOTg0fQ...",
+    "tokenType": "Bearer",
+    "expiresIn": 21600
+  }
+}

@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  # Spring Boot 기반의 보안 인증 코어 애플리케이션 서비스
+  security-auth-core:
+    build: .
+    ports:
+      - "8080:8080"  # 외부에서 8080 포트로 API 접근 가능하도록 매핑
+    environment:
+      # 로컬 개발용 프로필을 활성화하여 로컬 설정(application-local.yml 등)을 로드
+      - SPRING_PROFILES_ACTIVE=local
+      # Token Store로 사용할 Redis 컨테이너의 호스트명 (아래 선언된 redis 서비스명과 일치)
+      - SPRING_DATA_REDIS_HOST=redis
+      # Redis 기본 포트
+      - SPRING_DATA_REDIS_PORT=6379
+      # JWT 서명을 위한 HS512 알고리즘용 512비트(64바이트) 이상의 강력한 시크릿 키
+      - JWT_SECRET=[USER_SECRET_JWT_KEY_MUST_BE_LONG_ENOUGH_FOR_HS512]
+    depends_on:
+      # 애플리케이션이 기동하기 전에 Redis가 먼저 기동되어야 함을 보장
+      redis:
+        condition: service_started
+    networks:
+      - security-network # 격리된 내부 네트워크 사용
+
+  # JWT Refresh Token 저장 및 Blacklist 관리를 위한 인메모리 데이터 스토어
+  redis:
+    image: redis:7.2-alpine # 가볍고 보안성이 좋은 alpine 기반의 최신 7.2 버전 이미지 사용
+    ports:
+      - "6379:6379" # 개발/디버깅 편의를 위해 호스트의 6379 포트와 연결
+    # 보안 강화를 위해 비밀번호 인증을 필수로 설정
+    command: redis-server --requirepass "[USER_SECRET_REDIS_PASS]"
+    networks:
+      - security-network # 애플리케이션과 동일한 네트워크 대역 사용
+
+networks:
+  # 컨테이너 간의 안전한 통신을 위한 브릿지 네트워크
+  security-network:
+    driver: bridge

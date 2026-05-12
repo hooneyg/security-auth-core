@@ -2,31 +2,36 @@
 
 <img src="https://capsule-render.vercel.app/api?type=waving&color=DC2626&height=200&section=header&text=Security%20Auth%20Core&fontSize=50&animation=fadeIn&fontAlignY=38&fontColor=FFFFFF" />
 
-<h3>🔐 Enterprise-grade Security, JWT, and Hybrid Encryption Core</h3>
+<h3>🔐 Enterprise-grade Security: JWT Refresh Token Rotation, RSA-AES Hybrid Encryption</h3>
 
 <p>
   <img src="https://img.shields.io/badge/Java-21_LTS-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white" />
-  <img src="https://img.shields.io/badge/Spring_Boot-3.4-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white" />
+  <img src="https://img.shields.io/badge/Spring_Boot-4.0.6-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white" />
   <img src="https://img.shields.io/badge/Spring_Security-6.x-6DB33F?style=for-the-badge&logo=spring-security&logoColor=white" />
   <img src="https://img.shields.io/badge/Redis-Token_Store-DC382D?style=for-the-badge&logo=redis&logoColor=white" />
 </p>
 
 <p>
   <img src="https://img.shields.io/badge/License-MIT-blue?style=flat-square" />
-  <img src="https://img.shields.io/badge/Tests-17_Passed-brightgreen?style=flat-square" />
-  <img src="https://img.shields.io/badge/Coverage-Core_Modules-yellow?style=flat-square" />
+  <img src="https://img.shields.io/badge/Tests-25_Passed-brightgreen?style=flat-square" />
+  <img src="https://img.shields.io/badge/CI-Passing-brightgreen?style=flat-square" />
 </p>
 
 </div>
 
 ---
 
-> 금융 및 엔터프라이즈 급 보안 표준을 준수하는 **인증(Authentication) & 암호화(Encryption)** 기술의 집약체입니다.  
-> 모든 코드에는 **한 줄 한 줄 상세한 한글 주석**이 포함되어 있어, 누구나 보안 아키텍처의 내부 동작을 이해할 수 있습니다.
+> 금융 및 엔터프라이즈 급 보안 표준을 준수하는 **인증(Authentication) & 암호화(Encryption)** 아키텍처 레퍼런스입니다.  
+> 단순한 구현을 넘어, **왜 이 기술을 선택했는지(ADR)**와 **어떻게 동작하는지(실행 증거)**를 투명하게 공개합니다.
 
 ---
 
-## 🏗️ System Architecture
+## 📌 Problem — 왜 만들었는가
+- **토큰 탈취 취약점**: 단순 JWT Access Token 발급 방식은 토큰 탈취 시 서버에서 통제할 수 없는 치명적 단점이 존재합니다.
+- **민감 데이터 전송의 한계**: HTTPS에만 의존하기엔 엔드포인트 탈취나 프록시 스니핑 위험이 있어, 애플리케이션 레벨의 추가 암호화(E2EE)가 필요합니다.
+- **이 프로젝트는** Redis 기반의 Refresh Token Rotation(RTR)과 RSA-AES 하이브리드 암호화를 통해 이 문제들을 엔터프라이즈급으로 해결합니다.
+
+## 🏗️ Architecture — 어떻게 설계했는가
 
 ```mermaid
 graph TB
@@ -43,7 +48,6 @@ graph TB
     subgraph "🔑 Authentication Core"
         AuthController["Auth Controller"]
         JwtProvider["JWT Token Provider"]
-        OAuth2Handler["OAuth2 Success Handler"]
     end
 
     subgraph "🔐 Encryption Module"
@@ -71,8 +75,6 @@ graph TB
     CryptoService --> RSA
     CryptoService --> AES
 
-    OAuth2Handler --> |"Social Login"| JwtProvider
-
     style Client fill:#1E293B,stroke:#64748B,color:#F8FAFC
     style JwtFilter fill:#7C3AED,stroke:#A855F7,color:#F8FAFC
     style JwtProvider fill:#2563EB,stroke:#3B82F6,color:#F8FAFC
@@ -80,6 +82,7 @@ graph TB
     style RefreshRepo fill:#DC382D,stroke:#EF4444,color:#F8FAFC
     style Blacklist fill:#DC382D,stroke:#EF4444,color:#F8FAFC
 ```
+*(자세한 아키텍처 구조는 [`docs/architecture.md`](./docs/architecture.md) 참조)*
 
 ---
 
@@ -129,6 +132,11 @@ security-auth-core/
 | **RTR (Refresh Token Rotation)** | 토큰 사용 시 자동 갱신 → 탈취된 토큰 즉시 무효화 |
 | **Token Blacklist** | 로그아웃 시 Redis에 등록, TTL 기반 자동 정리 |
 
+### ✅ 증거 1: JWT Refresh Token Rotation (RTR) 및 Redis 블랙리스트 구현
+- **Access Token** (HS512, 15분 만료) + **Refresh Token** (Redis 저장, 7일 만료).
+- Refresh Token 사용 시 **기존 토큰을 즉시 폐기하고 새로 발급(Rotation)**하여 토큰 탈취(Replay Attack) 방어.
+- 로그아웃 시 토큰을 Redis **블랙리스트**에 등록하고 남은 TTL만큼만 유지하여 메모리 최적화.
+
 ### 2. 🔐 Hybrid Encryption (RSA + AES-256-GCM)
 | Feature | Description |
 | :--- | :--- |
@@ -137,6 +145,11 @@ security-auth-core/
 | **IV Randomization** | 동일 평문 → 매번 다른 암호문 (Rainbow Table 방어) |
 | **OAEP Padding** | RSA Padding Oracle Attack 방어 |
 
+### ✅ 증거 2: RSA-2048 + AES-256-GCM 하이브리드 암호화 적용
+- 대칭키(AES)의 빠른 속도와 비대칭키(RSA)의 키 교환 안전성을 결합.
+- 매 요청마다 새로운 AES 키(IV 랜덤)를 생성하여 완벽한 전방향 안전성(PFS) 보장.
+- 👉 [샘플 암호화 요청/응답 보기](./examples/encrypt-request.json)
+
 ### 3. 🛡️ Spring Security 6.x Integration
 | Feature | Description |
 | :--- | :--- |
@@ -144,10 +157,45 @@ security-auth-core/
 | **RBAC** | URL 패턴별 역할 기반 접근 제어 |
 | **OAuth2/OIDC** | Google, Kakao 소셜 로그인 연동 |
 | **BCrypt** | 비밀번호 해싱 (Salt 내장, 적응형 함수) |
+| **CORS & CSRF** | 전역 CORS 정책(Preflight 캐싱) 적용 및 Stateless 환경에 맞춘 CSRF 비활성화 명시 |
+
+### ✅ 증거 3: 실행 가능한 완전한 검증 환경 및 엔터프라이즈 보안 설정
+- **CORS/CSRF 보안 정책 증명**: 단순 어노테이션이 아닌 Spring Security Filter Chain 레벨에서의 전역 CORS 빈(Bean) 등록 및 구조적 CSRF 방어 논리 구현.
+- Docker Compose를 통한 인프라(Redis) 원클릭 실행.
+- 25개 이상의 촘촘한 단위/통합 테스트 (위변조, 서명 검증, 만료 시간, IV 랜덤성, CORS 통과 검증 등).
+- GitHub Actions CI를 통한 자동화된 빌드/테스트 파이프라인.
 
 ---
 
-## 🧪 Test Coverage
+## 🚀 Quick Start — 어떻게 실행하는가
+
+### 1. Docker Compose 기반 로컬 실행 (권장)
+별도의 Redis 설치 없이 명령어 한 번으로 즉시 실행 환경을 구축합니다.
+
+```bash
+git clone https://github.com/hooneyg/security-auth-core.git
+cd security-auth-core
+
+# Redis 및 애플리케이션 백그라운드 실행
+docker-compose up -d
+
+# 로그 확인
+docker-compose logs -f security-auth-core
+```
+
+### 2. API 샘플 테스트
+서버 기동 후, `examples/` 폴더에 제공된 JSON 샘플을 통해 즉시 API를 테스트할 수 있습니다.
+- [로그인 시나리오 (login-request.json)](./examples/login-request.json)
+- [토큰 갱신 시나리오 (token-refresh-request.json)](./examples/token-refresh-request.json)
+
+## 🧪 Tests — 어떻게 검증했는가
+
+```bash
+./gradlew test
+```
+- **JWT Provider (10 Tests)**: Access/Refresh 생성, 위변조 토큰 예외 처리, 만료 검증 등.
+- **Crypto Service (7 Tests)**: RSA 키 페어 생성, AES-256-GCM 암복호화 무결성, IV 랜덤성 증명.
+- **Security Chain (8+ Tests)**: MockMvc를 통한 인가 필터 체인 통과/차단 검증 (통합 테스트).
 
 ```
 ✅ JwtTokenProviderTest (10 tests)
@@ -173,63 +221,6 @@ security-auth-core/
 ```
 
 ---
-
-## ⚡ Quick Start
-
-### Prerequisites
-- Java 21+ (LTS)
-- Gradle 8.x
-- Redis Server (Token Store용)
-
-### 🐳 Run with Docker (Recommended)
-본 프로젝트는 **Docker**를 통해 환경 설정 없이 즉시 실행 가능합니다.
-
-```bash
-# 1. 이미지 빌드
-docker build -t security-auth-core:latest .
-
-# 2. 컨테이너 실행 (Redis 연결 설정 필요)
-docker run -p 8080:8080 security-auth-core:latest
-```
-
-### ☕ Local Build & Run
-```bash
-git clone https://github.com/hooneyg/security-auth-core.git
-cd security-auth-core
-
-# 빌드 & 테스트 실행
-./gradlew build test
-```
-
-### 2. Configuration
-`application.yml`에서 아래 플레이스홀더를 실제 값으로 교체하세요:
-
-```yaml
-jwt:
-  secret: "[USER_JWT_SECRET_KEY_MIN_64_CHARS]"  # openssl rand -base64 64
-
-spring:
-  data:
-    redis:
-      host: "[USER_REDIS_HOST]"
-      password: "[USER_REDIS_PASSWORD]"
-
-  security:
-    oauth2:
-      client:
-        registration:
-          google:
-            client-id: "[USER_GOOGLE_CLIENT_ID]"
-            client-secret: "[USER_GOOGLE_CLIENT_SECRET]"
-```
-
-### 3. Run
-```bash
-./gradlew bootRun
-```
-
----
-
 ## 🔗 Related Labs
 
 | Lab | Relevance |
@@ -239,11 +230,18 @@ spring:
 | 🏗️ [**infra-master-lab**](https://github.com/hooneyg/infra-master-lab) | K8S 환경에서의 Secret 관리 및 배포 전략 |
 
 ---
+## 📚 Documentation
+- [Architecture Overview](./docs/architecture.md)
+- [ADR-001: JWT 서명 알고리즘 선택 (HS256 vs HS512)](./docs/decisions/ADR-001-jwt-signature.md)
+- [ADR-002: 하이브리드 암호화 전략 선택](./docs/decisions/ADR-002-hybrid-encryption.md)
+
+## 📄 License
+This project is licensed under the [MIT License](./LICENSE).
+
+---
 
 <div align="center">
-
-**Built with ❤️ by [Hooney](https://github.com/hooneyg) — AI FullStack Developer & Enterprise Solution Architect**
+<b>Built with ❤️ by <a href="https://github.com/hooneyg">Hooney</a> — AI FullStack Developer & Enterprise Solution Architect</b>
 
 <img src="https://capsule-render.vercel.app/api?type=waving&color=DC2626&height=100&section=footer" />
-
 </div>

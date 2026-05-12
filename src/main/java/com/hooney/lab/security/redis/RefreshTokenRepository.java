@@ -3,26 +3,27 @@ package com.hooney.lab.security.redis;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 
 import java.util.concurrent.TimeUnit;
 
 /**
  * ╔══════════════════════════════════════════════════════════════════╗
- * ║         📦 Redis 기반 Refresh Token 저장소                       ║
- * ║                                                                  ║
- * ║  [역할]                                                          ║
- * ║  Refresh Token을 Redis에 저장하고 관리합니다.                     ║
- * ║  사용자별로 하나의 유효한 Refresh Token만 존재하도록 보장합니다.    ║
- * ║                                                                  ║
- * ║  [Redis 키 설계]                                                  ║
- * ║  키: "RT:{userId}" → 값: Refresh Token 문자열                    ║
- * ║  TTL: Refresh Token 만료 시간과 동일 (7일)                       ║
- * ║                                                                  ║
- * ║  [왜 Redis를 사용하는가?]                                         ║
- * ║  1. 빠른 읽기/쓰기: 인메모리 DB이므로 평균 1ms 이하의 응답 속도   ║
- * ║  2. TTL 자동 만료: 토큰 만료 시 자동 삭제 → 별도 배치 작업 불필요 ║
- * ║  3. 원자적 연산: SET + EXPIRE를 원자적으로 처리 → 경합 조건 방지  ║
+ * ║ 📦 Redis 기반 Refresh Token 저장소 ║
+ * ║ ║
+ * ║ [역할] ║
+ * ║ Refresh Token을 Redis에 저장하고 관리합니다. ║
+ * ║ 사용자별로 하나의 유효한 Refresh Token만 존재하도록 보장합니다. ║
+ * ║ ║
+ * ║ [Redis 키 설계] ║
+ * ║ 키: "RT:{userId}" → 값: Refresh Token 문자열 ║
+ * ║ TTL: Refresh Token 만료 시간과 동일 (7일) ║
+ * ║ ║
+ * ║ [왜 Redis를 사용하는가?] ║
+ * ║ 1. 빠른 읽기/쓰기: 인메모리 DB이므로 평균 1ms 이하의 응답 속도 ║
+ * ║ 2. TTL 자동 만료: 토큰 만료 시 자동 삭제 → 별도 배치 작업 불필요 ║
+ * ║ 3. 원자적 연산: SET + EXPIRE를 원자적으로 처리 → 경합 조건 방지 ║
  * ╚══════════════════════════════════════════════════════════════════╝
  */
 @Slf4j
@@ -48,11 +49,11 @@ public class RefreshTokenRepository {
      * @param refreshToken 저장할 Refresh Token 문자열
      * @param expirationMs 만료 시간 (밀리초) — Redis TTL로 설정됨
      *
-     * [동작 원리]
-     * Redis SET 명령 + PEXPIRE 명령을 원자적으로 실행
-     * → 지정된 시간이 지나면 Redis가 자동으로 해당 키를 삭제합니다.
+     *                     [동작 원리]
+     *                     Redis SET 명령 + PEXPIRE 명령을 원자적으로 실행
+     *                     → 지정된 시간이 지나면 Redis가 자동으로 해당 키를 삭제합니다.
      */
-    public void save(String userId, String refreshToken, long expirationMs) {
+    public void save(String userId, @NonNull String refreshToken, long expirationMs) {
         String key = REFRESH_TOKEN_PREFIX + userId;
 
         // opsForValue(): Redis의 String 타입 데이터 조작
