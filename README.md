@@ -221,15 +221,29 @@ docker-compose logs -f security-auth-core
 ```
 
 ---
-## 🔗 Related Labs
+## 🧭 Roadmap
 
-| Lab | Relevance |
-| :--- | :--- |
-| 🗄️ [**database-master-lab**](https://github.com/hooneyg/database-master-lab) | Redis 기반 토큰 저장소 설계 패턴 연동 |
-| 🌊 [**event-streaming-lab**](https://github.com/hooneyg/event-streaming-lab) | 인증 이벤트의 Kafka 스트리밍 처리 |
-| 🏗️ [**infra-master-lab**](https://github.com/hooneyg/infra-master-lab) | K8S 환경에서의 Secret 관리 및 배포 전략 |
+- [ ] OAuth2/OIDC provider integration
+- [ ] Key rotation 전략
+- [ ] Refresh token reuse detection 고도화
+- [ ] Audit log masking
+- [ ] Rate limiting
+- [ ] API gateway 연동 보안 정책
 
 ---
+
+## 🔗 Related Labs
+
+| Related Lab | 연결 이유 |
+| --- | --- |
+| `infra-master-lab` | 이 LAB을 운영 환경에 배포하기 위한 인프라 기준 |
+| `database-master-lab` | 상태 저장, 조회, 성능 최적화 기준 |
+| `event-streaming-lab` | 비동기 이벤트 처리와 실패 복구 기준 |
+| `realtime-comm-lab` | 실시간 연결과 메시지 전달 기준 |
+| `ai-agent-brain-lab` | LAB 문서 기반 AI 질의/자동화 확장 기준 |
+
+---
+
 ## 📚 Documentation
 - [Architecture Overview](./docs/architecture.md)
 - [ADR-001: JWT 서명 알고리즘 선택 (HS256 vs HS512)](./docs/decisions/ADR-001-jwt-signature.md)
