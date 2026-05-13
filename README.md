@@ -181,11 +181,18 @@ docker-compose up -d
 docker-compose logs -f security-auth-core
 ```
 
-### API 샘플 테스트
+## 🧪 Interactive API Scenarios — 직접 검증하기
 
-- [로그인 시나리오](./examples/login-request.json)
-- [토큰 갱신 시나리오](./examples/token-refresh-request.json)
-- [MitM 방어 시나리오](./docs/api-scenarios.md)
+단순한 문서 열람을 넘어, 실제 환경에서 보안 로직을 즉시 테스트해볼 수 있는 시나리오를 제공합니다.
+
+| Test Case | Description | Run/View |
+| :--- | :--- | :--- |
+| **로그인 & 토큰 발급** | 자격 증명 검증 및 JWT 세트 발급 시나리오 | [Details](./docs/api-specification.md#1-사용자-로그인-및-토큰-발급-authentication) / [Payload](./examples/login-request.json) |
+| **토큰 갱신 (RTR)** | Refresh Token Rotation을 통한 재사용 방어 테스트 | [Details](./docs/api-specification.md#2-토큰-갱신-및-rtr-정책-검증-token-refresh--rotation) / [Payload](./examples/token-refresh-request.json) |
+| **E2EE 암호화** | RSA + AES 하이브리드 암호화 통신 검증 | [Details](./docs/api-specification.md#3-하이브리드-암호화-및-e2ee-검증-hybrid-encryption) / [Payload](./examples/encrypt-request.json) |
+| **위협 방어 시나리오** | 해킹 위협 모델링 기반의 실제 방어 흐름 가이드 | [Full Scenarios](./docs/api-scenarios.md) |
+
+> 💡 **Pro Tip**: IntelliJ나 VSCode를 사용 중이라면 [scenarios.http](./examples/scenarios.http) 파일을 열어 버튼 클릭 한 번으로 모든 테스트를 직접 실행할 수 있습니다.
 
 ## 🧪 Tests — 어떻게 검증했는가
 

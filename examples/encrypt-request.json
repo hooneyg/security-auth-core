@@ -1,4 +1,6 @@
 {
-  "plainText": "010-1234-5678",
-  "publicKeyVersion": "v1"
+  "_comment": "하이브리드 복호화 요청: 클라이언트가 생성한 AES 키로 본문을 암호화하고, 해당 AES 키를 다시 서버의 RSA 공개키로 암호화하여 전송하는 E2EE(End-to-End Encryption) 시나리오입니다.",
+  "encryptedData": "TThS6...encrypted_payload...",
+  "encryptedAesKey": "RSA_encrypted_AES_key_here",
+  "iv": "random_initialization_vector_base64"
 }

@@ -1,3 +1,4 @@
 {
-  "refreshToken": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBob29uZXl6LmNvbSIsImV4cCI6MTcxNjIwNzc4NCwiaWF0IjoxNzE1NjAyOTg0fQ..."
+  "_comment": "토큰 갱신 요청: 만료된 Access Token을 대신하여 Refresh Token을 서버로 전달합니다. RTR 정책에 따라 요청에 사용된 Refresh Token은 즉시 무효화됩니다.",
+  "refreshToken": "previous_issued_refresh_token_string_here"
 }

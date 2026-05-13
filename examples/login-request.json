@@ -1,4 +1,5 @@
 {
-  "username": "admin@hooneyz.com",
+  "_comment": "로그인 요청: 사용자의 이메일과 비밀번호를 통해 인증을 시도하고 JWT 토큰 세트(Access/Refresh)를 발급받습니다.",
+  "email": "admin@hooneyz.com",
   "password": "SecurePassword123!"
 }

@@ -1,8 +1,7 @@
 {
-  "status": 200,
-  "message": "Encrypted successfully",
-  "data": {
-    "encryptedData": "U2FsdGVkX1+vXwO3zZ8Q0mZ...[AES_ENCRYPTED_DATA]",
-    "encryptedAesKey": "NzA1ZjQ1MjEtNGU...[RSA_ENCRYPTED_AES_KEY]"
+  "_comment": "하이브리드 복호화 응답: 서버가 자신의 개인키(Private Key)로 AES 키를 먼저 복호화한 후, 이를 통해 본문 데이터를 복호화하여 반환한 결과입니다.",
+  "status": "success",
+  "decryptedData": {
+    "message": "This is a sensitive plain text message decrypted safely by the server."
   }
 }

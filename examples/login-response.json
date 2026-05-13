@@ -1,10 +1,7 @@
 {
-  "status": 200,
-  "message": "Login successful",
-  "data": {
-    "accessToken": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBob29uZXl6LmNvbSIsImF1dGhvcml0aWVzIjpbIlJPTEVfQURNSU4iXSwiZXhwIjoxNzE1NjI0NTg0LCJpYXQiOjE3MTU2MDI5ODR9...",
-    "refreshToken": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBob29uZXl6LmNvbSIsImV4cCI6MTcxNjIwNzc4NCwiaWF0IjoxNzE1NjAyOTg0fQ...",
-    "tokenType": "Bearer",
-    "expiresIn": 21600
-  }
+  "_comment": "로그인 응답: 인증 성공 시 발급되는 토큰 정보입니다. 보안을 위해 Access Token은 짧은 만료 시간을 가지며, Refresh Token은 Redis에 저장되어 관리됩니다.",
+  "accessToken": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBob29uZXl6LmNvbSIsImlhdCI6MTYyMDkxMTYwMCwiZXhwIjoxNjIwOTI2MDAwfQ.signature",
+  "refreshToken": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBob29uZXl6LmNvbSIsImlhdCI6MTYyMDkxMTYwMCwiZXhwIjoxNjIxNTE2MDAwfQ.signature",
+  "tokenType": "Bearer",
+  "expiresIn": 3600
 }
