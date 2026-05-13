@@ -16,6 +16,22 @@
 ### 1. 사용자 로그인 및 토큰 발급 (Authentication)
 사용자의 자격 증명을 확인하고 세션 유지를 위한 이중 토큰(Access, Refresh)을 발급받는 단계입니다.
 
+#### [Flow Diagram]
+```mermaid
+sequenceDiagram
+    autonumber
+    participant C as Client (App/Web)
+    participant S as Auth Server (Spring)
+    participant R as Token Store (Redis)
+
+    C->>S: POST /auth/login (email, password)
+    Note over S: 1. Verify Credentials<br/>2. Generate JWT Pair
+    S->>R: Store Refresh Token (TTL: 7 days)
+    R-->>S: OK
+    S-->>C: 200 OK (AccessToken, RefreshToken)
+```
+
+
 | 항목 | 내용 |
 | :--- | :--- |
 | **Scenario ID** | AUTH-TC-001 |
@@ -48,6 +64,28 @@
 ### 2. 토큰 갱신 및 RTR 정책 검증 (Token Refresh & Rotation)
 보안 강화를 위해 한 번 사용된 Refresh Token은 폐기되고 새로운 토큰 세트가 발급되는지 검증합니다.
 
+#### [Flow Diagram]
+```mermaid
+sequenceDiagram
+    autonumber
+    participant C as Client
+    participant S as Auth Server
+    participant R as Token Store (Redis)
+
+    C->>S: POST /auth/refresh (old RefreshToken)
+    S->>R: 1. Validate & Find old RefreshToken
+    alt Token Exists & Valid
+        R-->>S: Valid
+        S->>R: 2. Delete old RefreshToken (RTR)
+        S->>R: 3. Store new RefreshToken
+        S-->>C: 200 OK (new AccessToken, new RefreshToken)
+    else Token Missing or Reused
+        R-->>S: Not Found / Invalid
+        S-->>C: 401 Unauthorized (Reuse Detection)
+    end
+```
+
+
 | 항목 | 내용 |
 | :--- | :--- |
 | **Scenario ID** | AUTH-TC-002 |
@@ -68,6 +106,23 @@
 
 ### 3. 하이브리드 암호화 및 E2EE 검증 (Hybrid Encryption)
 클라이언트 측 암호화를 시뮬레이션하여, 서버에서 개인키로 복호화가 정상적으로 이루어지는지 확인합니다.
+
+#### [Flow Diagram]
+```mermaid
+sequenceDiagram
+    autonumber
+    participant C as Client
+    participant S as Crypto Server (Java)
+
+    Note over C: 1. Generate Random AES Key<br/>2. Encrypt Data with AES
+    C->>S: Request RSA Public Key
+    S-->>C: RSA Public Key (2048-bit)
+    Note over C: 3. Encrypt AES Key with RSA Public Key
+    C->>S: POST /crypto/decrypt (encryptedData, encryptedAesKey, iv)
+    Note over S: 4. Decrypt AES Key with RSA Private Key<br/>5. Decrypt Data with decrypted AES Key
+    S-->>C: 200 OK (decrypted plain text)
+```
+
 
 | 항목 | 내용 |
 | :--- | :--- |
