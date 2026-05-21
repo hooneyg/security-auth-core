@@ -1,4 +1,4 @@
 {
-  "_comment": "토큰 갱신 요청: 만료된 Access Token을 대신하여 Refresh Token을 서버로 전달합니다. RTR 정책에 따라 요청에 사용된 Refresh Token은 즉시 무효화됩니다.",
-  "refreshToken": "previous_issued_refresh_token_string_here"
+  "_comment": "토큰 갱신 요청: 만료된 Access Token을 대신하여 장기 유효 토큰인 Refresh Token을 사용해 새로운 토큰 세트를 발급받습니다. (RTR 정책 적용)",
+  "refreshToken": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBob29uZXl6LmNvbSIsImlhdCI6MTcxNTQ1MDAwMCwiZXhwIjoxNzE2MDU0ODAwLCJ0eXBlIjoiUkVGUkVTSCJ9.signature_part"
 }

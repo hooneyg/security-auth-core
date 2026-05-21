@@ -5,7 +5,7 @@ services:
   security-auth-core:
     build: .
     ports:
-      - "8080:8080"  # 외부에서 8080 포트로 API 접근 가능하도록 매핑
+      - "8080:8080" # 외부에서 8080 포트로 API 접근 가능하도록 매핑
     environment:
       # 로컬 개발용 프로필을 활성화하여 로컬 설정(application-local.yml 등)을 로드
       - SPRING_PROFILES_ACTIVE=local
@@ -13,8 +13,10 @@ services:
       - SPRING_DATA_REDIS_HOST=redis
       # Redis 기본 포트
       - SPRING_DATA_REDIS_PORT=6379
+      # Redis 인증 비밀번호 (보안을 위해 환경 변수로 주입)
+      - SPRING_DATA_REDIS_PASSWORD=hooney1234
       # JWT 서명을 위한 HS512 알고리즘용 512비트(64바이트) 이상의 강력한 시크릿 키
-      - JWT_SECRET=[USER_SECRET_JWT_KEY_MUST_BE_LONG_ENOUGH_FOR_HS512]
+      - JWT_SECRET=i63eYTTgxsHPWwwAX1S3rHyeZQb5vvyXgsEq24fYBL0CyEF2NoRW5g446IdbUGzZUIFy+4RxwfRCsap3Y6q6iw==
     depends_on:
       # 애플리케이션이 기동하기 전에 Redis가 먼저 기동되어야 함을 보장
       redis:

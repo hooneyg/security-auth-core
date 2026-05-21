@@ -84,7 +84,7 @@ spring:
     redis:
       host: "[USER_REDIS_HOST]"       # Redis 서버 주소 (예: localhost 또는 redis.hooneyz.com)
       port: 6379                       # Redis 기본 포트 (TLS 사용 시 6380)
-      password: "[USER_REDIS_PASSWORD]" # Redis 인증 비밀번호 (AUTH 명령에 사용)
+      password: "${SPRING_DATA_REDIS_PASSWORD:}" # Redis 인증 비밀번호 (AUTH 명령에 사용)
       timeout: 3000ms                  # 연결 타임아웃 (3초): 네트워크 지연 시 빠른 실패 유도
       lettuce:
         pool:
@@ -98,7 +98,7 @@ spring:
 # 사용자 인증 후 발급되는 토큰의 보안 속성을 정의합니다.
 # ─────────────────────────────────────────────────────────
 jwt:
-  secret: "[USER_JWT_SECRET_KEY_MIN_64_CHARS]"
+  secret: "${JWT_SECRET}"
   # ↑ JWT 서명에 사용되는 비밀키
   # - HMAC-SHA512 알고리즘 사용 시 최소 64자(512비트) 이상 권장
   # - 예시: openssl rand -base64 64 명령으로 안전한 키 생성 가능
@@ -176,3 +176,17 @@ logging:
     root: INFO
     com.hooney.lab: DEBUG
     org.springframework.security: DEBUG
+
+# ─────────────────────────────────────────────────────────
+# 📖 SpringDoc OpenAPI (Swagger) 설정
+# ─────────────────────────────────────────────────────────
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    display-request-duration: true # 요청 처리 시간 표시
+    groups-order: DESC             # 그룹 정렬 순서
+    operations-sorter: method      # API 메서드별 정렬 (GET, POST 등)
+    disable-swagger-default-url: true
+    doc-expansion: list            # 기본적으로 목록을 펼쳐서 표시

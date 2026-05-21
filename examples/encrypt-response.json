@@ -1,7 +1,6 @@
 {
-  "_comment": "하이브리드 복호화 응답: 서버가 자신의 개인키(Private Key)로 AES 키를 먼저 복호화한 후, 이를 통해 본문 데이터를 복호화하여 반환한 결과입니다.",
+  "_comment": "암호화 처리 응답: 서버에서 복호화된 결과(평문)를 반환하거나, 처리가 완료되었음을 알립니다.",
   "status": "success",
-  "decryptedData": {
-    "message": "This is a sensitive plain text message decrypted safely by the server."
-  }
+  "message": "Data successfully decrypted",
+  "decryptedData": "This is a sensitive plain text message."
 }

@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -24,6 +25,12 @@ import static org.assertj.core.api.Assertions.assertThat;
  * ╚══════════════════════════════════════════════════════════════════╝
  */
 @SpringBootTest
+(properties = {
+    "spring.data.redis.host=127.0.0.1",
+    "spring.data.redis.port=6379",
+    "spring.data.redis.password=",       // 패스워드 공백으로 완벽 차단
+    "spring.data.redis.timeout=5000ms"   // 핸드셰이크 타임아웃을 위해 여유 있게 지정
+})
 @Import(EmbeddedRedisConfig.class)
 class RedisIntegrationTest {
 

@@ -4,6 +4,66 @@
 
 ---
 
+## 🏗️ 서비스 통합 흐름도 (Master Sequence Diagram)
+
+전체적인 인증 및 암호화 흐름을 한눈에 파악할 수 있는 통합 다이어그램입니다.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant C as Client (Frontend)
+    participant S as Auth Core (Spring Boot)
+    participant R as Token Store (Redis)
+
+    Note over C, S: [Scenario 1: 인증 및 토큰 발급]
+    C->>S: POST /auth/login (email, password)
+    S->>S: 자격 증명 확인 및 JWT 생성
+    S->>R: Refresh Token 저장 (White-list 관리)
+    S-->>C: 200 OK (Access, Refresh Token)
+
+    Note over C, S: [Scenario 2: 자원 접근 및 암호화 통신]
+    C->>S: GET /crypto/public-key (RSA)
+    S-->>C: RSA Public Key (2048-bit)
+    Note over C: AES 키 생성 및 RSA로 암호화
+    C->>S: POST /crypto/decrypt (Encrypted Data + Encrypted AES Key)
+    S->>S: RSA Private Key로 복호화 및 데이터 처리
+    S-->>C: 200 OK (처리 결과)
+
+    Note over C, S: [Scenario 3: 토큰 갱신 (RTR 적용)]
+    C->>S: POST /auth/refresh (RefreshToken)
+    S->>R: 기존 토큰 유효성 및 재사용 여부 확인
+    S->>R: 기존 토큰 폐기 (Rotation)
+    S->>R: 신규 Refresh Token 저장
+    S-->>C: 200 OK (New Token Pair)
+    
+    Note over C, S: [Scenario 4: 로그아웃 및 블랙리스트]
+    C->>S: POST /auth/logout (Bearer AccessToken)
+    S->>R: Access Token을 블랙리스트에 등록
+    S->>R: 해당 사용자의 Refresh Token 삭제
+    S-->>C: 200 OK (Logged Out)
+```
+
+## 🔄 통합 테스트 수명 주기 (Test Lifecycle Flow)
+
+테스트 시나리오의 선후 관계와 의존성을 도식화한 흐름도입니다.
+
+```mermaid
+graph TD
+    Start((시작)) --> Login[1. 로그인 API 호출]
+    Login -->|성공| SaveTokens[토큰 세트 저장]
+    SaveTokens --> Access[2. 자원 접근 테스트<br/>Bearer AccessToken]
+    Access -->|만료 시뮬레이션| Refresh[3. 토큰 갱신 테스트<br/>RefreshToken]
+    Refresh -->|RTR 검증| Reuse[4. 이전 토큰 재사용 테스트]
+    Reuse -->|401 Unauthorized| Blacklist[5. 로그아웃/블랙리스트 테스트]
+    Blacklist --> End((종료))
+
+    style Login fill:#f9f,stroke:#333,stroke-width:2px
+    style Refresh fill:#bbf,stroke:#333,stroke-width:2px
+    style Reuse fill:#fbb,stroke:#333,stroke-width:2px
+```
+
+---
+
 ## 🛠️ API 기반 정보
 - **Base URL**: `http://localhost:8080/api/v1`
 - **Content-Type**: `application/json`
@@ -44,18 +104,18 @@ sequenceDiagram
 **Request Body**
 ```json
 {
-  "email": "admin@hooneyz.com",
-  "password": "SecurePassword123!"
+  "email": "admin@hooneyz.com",      // 사용자 이메일 (인증 ID)
+  "password": "SecurePassword123!"    // 사용자 비밀번호 (암호화되어 전송되지 않음에 유의)
 }
 ```
 
 **Expected Response (200 OK)**
 ```json
 {
-  "accessToken": "eyJhbGci...", 
-  "refreshToken": "eyJhbGci...",
-  "tokenType": "Bearer",
-  "expiresIn": 3600
+  "accessToken": "eyJhbGci...",       // 자원 접근용 단기 토큰 (예: 30분)
+  "refreshToken": "eyJhbGci...",      // 토큰 갱신용 장기 토큰 (예: 7일)
+  "tokenType": "Bearer",              // 인증 타입 (OAuth2 표준)
+  "expiresIn": 3600                   // 액세스 토큰 만료 시간 (초)
 }
 ```
 
@@ -98,7 +158,7 @@ sequenceDiagram
 **Request Body**
 ```json
 {
-  "refreshToken": "previous_issued_refresh_token_string"
+  "refreshToken": "previous_issued_refresh_token_string" // 갱신하고자 하는 기존 리프레시 토큰
 }
 ```
 
@@ -136,9 +196,9 @@ sequenceDiagram
 **Request Body (Encrypted)**
 ```json
 {
-  "encryptedData": "AES로 암호화된 본문 데이터",
-  "encryptedAesKey": "RSA 공개키로 암호화된 AES 키",
-  "iv": "AES 암호화에 사용된 초기화 벡터"
+  "encryptedData": "...",      // AES-256-GCM으로 암호화된 실제 데이터 (Base64)
+  "encryptedAesKey": "...",    // RSA 공개키로 암호화된 AES 대칭키 (Base64)
+  "iv": "..."                  // 암호화에 사용된 초기화 벡터 (Base64)
 }
 ```
 

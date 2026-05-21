@@ -1,0 +1,76 @@
+# 🧪 Security Auth Core - Test Configuration
+#
+# [개요]
+# 통합 테스트 및 Spring Context 로드 테스트를 위한 설정 파일입니다.
+# 메인 리소스의 application.yml 설정을 덮어씁니다.
+#
+# [중요]
+# - jwt.secret: HMAC-SHA512 알고리즘 조건(512비트 이상)을 충족하며 
+#   Base64 디코딩이 가능한 안전한 테스트 전용 대칭키를 하드코딩하여 사용합니다.
+# - encryption.rsa: 테스트용 RSA 키 파일이 없으므로, 키 파일 로딩 과정에서 에러가 발생하지 않도록 
+#   테스트 전용 가짜(mock) 경로를 사용하거나 키 탐색 빈 에러를 예방합니다.
+
+spring:
+  application:
+    name: security-auth-core-test
+
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      password: ""
+      timeout: 3000ms
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: "test-google-client-id"
+            client-secret: "test-google-client-secret"
+            scope:
+              - email
+              - profile
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+          kakao:
+            client-id: "test-kakao-client-id"
+            client-secret: "test-kakao-client-secret"
+            client-authentication-method: client_secret_post
+            authorization-grant-type: authorization_code
+            scope:
+              - profile_nickname
+              - account_email
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            client-name: Kakao
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
+
+jwt:
+  # HMAC-SHA512에 적합한 64바이트(512비트) 이상의 안전한 Base64 인코딩 테스트 키
+  secret: "dGhpcy1pcy1hLXNlY3JldC1rZXktZm9yLXRlc3RpbmctcHVycG9zZXMtYW5kLWl0LW11c3QtYmUtYXQtbGVhc3QtNjQtYnl0ZXMtbG9uZy1zby10aGF0LWl0LWNhbi1iZS11c2VkLWZvci1obWFjLXNoYTUxMg=="
+  access-token:
+    expiration: 3600000 # 1 hour
+  refresh-token:
+    expiration: 86400000 # 1 day
+  rtr:
+    enabled: true
+
+encryption:
+  rsa:
+    key-size: 2048
+    # 테스트 시에는 실제 파일이 필요하지 않도록 빈 기본값 설정
+    public-key-path: ""
+    private-key-path: ""
+  aes:
+    key-size: 256
+    algorithm: AES/GCM/NoPadding
+
+logging:
+  level:
+    root: INFO
+    com.hooney.lab: DEBUG
+    org.springframework.security: INFO

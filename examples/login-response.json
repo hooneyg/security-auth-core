@@ -1,7 +1,7 @@
 {
-  "_comment": "로그인 응답: 인증 성공 시 발급되는 토큰 정보입니다. 보안을 위해 Access Token은 짧은 만료 시간을 가지며, Refresh Token은 Redis에 저장되어 관리됩니다.",
-  "accessToken": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBob29uZXl6LmNvbSIsImlhdCI6MTYyMDkxMTYwMCwiZXhwIjoxNjIwOTI2MDAwfQ.signature",
-  "refreshToken": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbkBob29uZXl6LmNvbSIsImlhdCI6MTYyMDkxMTYwMCwiZXhwIjoxNjIxNTE2MDAwfQ.signature",
+  "_comment": "로그인 응답: 인증 성공 시 Access Token과 Refresh Token 세트를 반환합니다. 클라이언트는 Access Token을 Authorization 헤더에 담아 요청하고, 만료 시 Refresh Token으로 갱신해야 합니다.",
+  "accessToken": "eyJhbGciOiJIUzUxMiJ9...",
+  "refreshToken": "eyJhbGciOiJIUzUxMiJ9...",
   "tokenType": "Bearer",
-  "expiresIn": 3600
+  "expiresIn": 900
 }

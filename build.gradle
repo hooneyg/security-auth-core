@@ -16,7 +16,7 @@
 
 plugins {
     // Spring Boot 플러그인: 실행 가능한 JAR 생성 및 의존성 관리 자동화
-    id 'org.springframework.boot' version '4.0.6'
+    id 'org.springframework.boot' version '3.4.0'
 
     // Spring 의존성 관리 플러그인: BOM(Bill of Materials) 기반으로 호환 가능한 라이브러리 버전을 자동으로 맞춰줌
     id 'io.spring.dependency-management' version '1.1.7'
@@ -133,8 +133,14 @@ dependencies {
     // Spring Boot Test: JUnit 5 + Mockito + AssertJ 통합 테스트 스타터
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
+    // MockMvc 설정을 위한 자동 구성 의존성 추가
+    testImplementation 'org.springframework.boot:spring-boot-test-autoconfigure'
+
     // Spring Security Test: @WithMockUser 등 보안 테스트 유틸리티
     testImplementation 'org.springframework.security:spring-security-test'
+
+    // JUnit Platform Launcher: Gradle 8+ 환경에서 테스트 실행을 위해 필요
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
     // Embedded Redis: 테스트 시 실제 Redis 서버 없이 인메모리 Redis 실행
     // - @Test에서 Redis 의존 로직을 독립적으로 검증 가능
@@ -143,6 +149,11 @@ dependencies {
     // Lombok 테스트 환경 지원
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
+
+    // ═══════════════════════════════════════════════════════
+    // 📖 Documentation: API 문서화를 위한 Swagger/OpenAPI
+    // ═══════════════════════════════════════════════════════
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5'
 }
 
 // ─────────────────────────────────────────────────────────
@@ -151,6 +162,9 @@ dependencies {
 // ─────────────────────────────────────────────────────────
 tasks.named('test') {
     useJUnitPlatform()
+
+    // Java 21+ 에서 Mockito 등 바이트코드 조작 라이브러리의 Self-attachment를 허용
+    jvmArgs "-Djdk.attach.allowAttachSelf=true"
 
     // 테스트 실행 시 콘솔에 결과를 실시간으로 출력
     testLogging {

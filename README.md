@@ -6,7 +6,7 @@
 
 <p>
   <img src="https://img.shields.io/badge/Java-21_LTS-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white" />
-  <img src="https://img.shields.io/badge/Spring_Boot-4.0.6-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white" />
+  <img src="https://img.shields.io/badge/Spring_Boot-3.4.0-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white" />
   <img src="https://img.shields.io/badge/Spring_Security-6.x-6DB33F?style=for-the-badge&logo=spring-security&logoColor=white" />
   <img src="https://img.shields.io/badge/Redis-Token_Store-DC382D?style=for-the-badge&logo=redis&logoColor=white" />
 </p>
@@ -15,6 +15,10 @@
   <img src="https://img.shields.io/badge/License-MIT-blue?style=flat-square" />
   <img src="https://img.shields.io/badge/Tests-25%2B_Passed-brightgreen?style=flat-square" />
   <img src="https://img.shields.io/badge/CI-Passing-brightgreen?style=flat-square&logo=githubactions&logoColor=white" />
+</p>
+
+<p align="center">
+  <b>🔗 Homepage / Demo:</b> <a href="https://hooneyg.github.io/security-auth-core">hooneyg.github.io/security-auth-core</a>
 </p>
 
 </div>
